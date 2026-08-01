@@ -163,7 +163,13 @@ pub fn Lexer::tokenize(self : Lexer) -> Array[Token] {
         upper == "LEFT" ||
         upper == "RIGHT" ||
         upper == "CROSS" ||
-        upper == "UNION" {
+        upper == "UNION" ||
+        upper == "GROUP" ||
+        upper == "BY" ||
+        upper == "ORDER" ||
+        upper == "LIMIT" ||
+        upper == "ASC" ||
+        upper == "DESC" {
         tokens.push(Token::Keyword(upper))
       } else {
         tokens.push(Token::Identifier(id))

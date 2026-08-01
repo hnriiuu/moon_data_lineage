@@ -131,3 +131,21 @@ test "sql lineage extraction with star expansion" {
   assert_eq(field_deps[1].target_field, "val")
   assert_eq(field_deps[1].source_fields, ["tbl.val"])
 }
+
+///|
+test "sql parser group by order by limit" {
+  let sql = "SELECT u.id, COUNT(o.id) AS order_count FROM users u JOIN orders o ON u.id = o.user_id GROUP BY u.id ORDER BY order_count DESC LIMIT 10"
+  let lexer = Lexer::new(sql)
+  let tokens = lexer.tokenize()
+  let parser = Parser::new(tokens)
+
+  match parser.parse_stmt() {
+    Ok(SqlStmt::Select(select)) => {
+      assert_eq(select.group_by.length(), 1)
+      assert_eq(select.order_by.length(), 1)
+      assert_eq(select.order_by[0].1, true) // DESC is true
+      assert_eq(select.limit, Some(10))
+    }
+    _ => assert_eq(true, false)
+  }
+}

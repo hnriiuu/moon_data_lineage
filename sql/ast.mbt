@@ -33,6 +33,9 @@ pub(all) struct SqlSelect {
   from_table : SqlTable?
   joins : Array[SqlJoin]
   where_clause : SqlExpr?
+  group_by : Array[SqlExpr]
+  order_by : Array[(SqlExpr, Bool)] // expression, is_desc
+  limit : Int?
 } derive(Eq, Debug)
 
 ///|

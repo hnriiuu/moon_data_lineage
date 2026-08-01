@@ -66,6 +66,19 @@ fn debug_to_string(tok : Token) -> String {
 }
 
 ///|
+fn parse_int_literal(s : String) -> Result[Int, String] {
+  let mut val = 0
+  for c in s {
+    if c >= '0' && c <= '9' {
+      val = val * 10 + (c.to_int() - '0'.to_int())
+    } else {
+      return Err("Invalid character in integer: " + s)
+    }
+  }
+  Ok(val)
+}
+
+///|
 pub fn Parser::parse_stmt(self : Parser) -> Result[SqlStmt, String] {
   match self.peek() {
     Token::Keyword("SELECT") =>
@@ -187,7 +200,94 @@ fn Parser::parse_select(self : Parser) -> Result[SqlSelect, String] {
     _ => ()
   }
 
-  Ok({ projections, from_table, joins, where_clause })
+  // Parse optional GROUP BY
+  let group_by = []
+  match self.peek() {
+    Token::Keyword("GROUP") => {
+      let _ = self.advance()
+      match self.expect_keyword("BY") {
+        Ok(_) => ()
+        Err(e) => return Err(e)
+      }
+      let mut parse_more = true
+      while parse_more {
+        match self.parse_expr() {
+          Ok(expr) => group_by.push(expr)
+          Err(e) => return Err(e)
+        }
+        match self.peek() {
+          Token::Symbol(",") => {
+            let _ = self.advance()
+            ()
+          }
+          _ => parse_more = false
+        }
+      }
+    }
+    _ => ()
+  }
+
+  // Parse optional ORDER BY
+  let order_by = []
+  match self.peek() {
+    Token::Keyword("ORDER") => {
+      let _ = self.advance()
+      match self.expect_keyword("BY") {
+        Ok(_) => ()
+        Err(e) => return Err(e)
+      }
+      let mut parse_more = true
+      while parse_more {
+        let expr = match self.parse_expr() {
+          Ok(e) => e
+          Err(e) => return Err(e)
+        }
+        let mut is_desc = false
+        match self.peek() {
+          Token::Keyword("ASC") => {
+            let _ = self.advance()
+            ()
+          }
+          Token::Keyword("DESC") => {
+            let _ = self.advance()
+            is_desc = true
+          }
+          _ => ()
+        }
+        order_by.push((expr, is_desc))
+        match self.peek() {
+          Token::Symbol(",") => {
+            let _ = self.advance()
+            ()
+          }
+          _ => parse_more = false
+        }
+      }
+    }
+    _ => ()
+  }
+
+  // Parse optional LIMIT
+  let mut limit : Int? = None
+  match self.peek() {
+    Token::Keyword("LIMIT") => {
+      let _ = self.advance()
+      match self.advance() {
+        Token::NumberLiteral(n) =>
+          match parse_int_literal(n) {
+            Ok(val) => limit = Some(val)
+            Err(e) => return Err(e)
+          }
+        tok =>
+          return Err(
+            "Expected integer limit value, got " + debug_to_string(tok),
+          )
+      }
+    }
+    _ => ()
+  }
+
+  Ok({ projections, from_table, joins, where_clause, group_by, order_by, limit })
 }
 
 ///|
@@ -451,15 +551,17 @@ fn Parser::parse_join(self : Parser) -> Result[SqlJoin, String] {
   let mut on_expr : SqlExpr? = None
 
   if join_type != "CROSS" {
-    match self.expect_keyword("ON") {
-      Ok(_) => ()
-      Err(e) => return Err(e)
+    match self.peek() {
+      Token::Keyword("ON") => {
+        let _ = self.advance()
+        let expr = match self.parse_expr() {
+          Ok(e) => e
+          Err(e) => return Err(e)
+        }
+        on_expr = Some(expr)
+      }
+      _ => ()
     }
-    let expr = match self.parse_expr() {
-      Ok(e) => e
-      Err(e) => return Err(e)
-    }
-    on_expr = Some(expr)
   }
 
   Ok({ table, join_type, on_expr })
