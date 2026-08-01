@@ -62,3 +62,51 @@ test "cycle detection" {
   let contains_cycle = errs[0].contains("Circular dependency")
   assert_eq(contains_cycle, true)
 }
+
+///|
+test "data catalog and pii propagation" {
+  let reg = Registry::new()
+  let users_schema = [
+    Field::new("id", "Int", tags=["pii"]),
+    Field::new("name", "String"),
+  ]
+  let dashboard_schema = [
+    Field::new("user_id", "Int"),
+    Field::new("user_name", "String"),
+  ]
+  let _ = reg.register_dataset(
+    "users",
+    "Users Raw",
+    users_schema,
+    dataset_type="source",
+  )
+  let _ = reg.register_dataset(
+    "dashboard",
+    "Dashboard Target",
+    dashboard_schema,
+    dataset_type="target",
+  )
+
+  reg.register_field_dependency(
+    "dashboard",
+    "user_name",
+    ["users.name"],
+    "users.name",
+  )
+  reg.register_field_dependency(
+    "dashboard",
+    "user_id",
+    ["users.id"],
+    "users.id",
+  )
+
+  let graph = reg.get_graph()
+  let catalog = build_catalog(graph)
+
+  assert_eq(catalog.pii_columns.length(), 1)
+  assert_eq(catalog.pii_columns[0], "users.id")
+
+  let propagated = trace_pii_propagation(graph, catalog)
+  assert_eq(propagated.length(), 1)
+  assert_eq(propagated[0], "dashboard.user_id")
+}
