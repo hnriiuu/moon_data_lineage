@@ -11,8 +11,8 @@ pub(all) struct Dataset {
   id : String
   name : String
   schema : Array[Field]
-  description : String
-  dataset_type : String // "source", "derived", "target"
+  mut description : String
+  mut dataset_type : String // "source", "derived", "target"
   location : String
   version : String
 } derive(Eq, Debug)

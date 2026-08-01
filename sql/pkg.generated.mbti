@@ -1,0 +1,85 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "hnriiuu/moon_data_lineage/sql"
+
+import {
+  "hnriiuu/moon_data_lineage/core",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn expr_to_string(SqlExpr) -> String
+
+pub fn extract_lineage_from_sql(@core.LineageGraph, String) -> Result[Unit, String]
+
+// Errors
+
+// Types and methods
+pub(all) struct Lexer {
+  input : String
+  len : Int
+  mut pos : Int
+} derive(Eq, @debug.Debug)
+pub fn Lexer::new(String) -> Self
+pub fn Lexer::tokenize(Self) -> Array[Token]
+
+pub(all) struct Parser {
+  tokens : Array[Token]
+  mut pos : Int
+} derive(Eq, @debug.Debug)
+pub fn Parser::new(Array[Token]) -> Self
+pub fn Parser::parse_stmt(Self) -> Result[SqlStmt, String]
+
+pub(all) enum SqlExpr {
+  ColRef(String?, String)
+  Star
+  Number(String)
+  StringVal(String)
+  BinaryOp(SqlExpr, String, SqlExpr)
+  FuncCall(String, Array[SqlExpr])
+} derive(Eq, @debug.Debug)
+
+pub(all) struct SqlJoin {
+  table : SqlTable
+  join_type : String
+  on_expr : SqlExpr?
+} derive(Eq, @debug.Debug)
+
+pub(all) struct SqlProjection {
+  expr : SqlExpr
+  alias_name : String?
+} derive(Eq, @debug.Debug)
+
+pub(all) struct SqlSelect {
+  projections : Array[SqlProjection]
+  from_table : SqlTable?
+  joins : Array[SqlJoin]
+  where_clause : SqlExpr?
+  group_by : Array[SqlExpr]
+  order_by : Array[(SqlExpr, Bool)]
+  limit : Int?
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SqlStmt {
+  Select(SqlSelect)
+  Insert(String, SqlSelect)
+  CreateView(String, SqlSelect)
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SqlTable {
+  BaseTable(String, String?)
+  Subquery(SqlSelect, String)
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Token {
+  Keyword(String)
+  Identifier(String)
+  StringLiteral(String)
+  NumberLiteral(String)
+  Symbol(String)
+  EOF
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

@@ -1,3 +1,4 @@
 import {
   "hnriiuu/moon_data_lineage/core",
+  "hnriiuu/moon_data_lineage/sql",
 }

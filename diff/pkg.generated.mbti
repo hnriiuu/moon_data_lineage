@@ -1,0 +1,54 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "hnriiuu/moon_data_lineage/diff"
+
+import {
+  "hnriiuu/moon_data_lineage/core",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn compare_datasets(@core.Dataset, @core.Dataset) -> DatasetDiff?
+
+pub fn compare_graphs(@core.LineageGraph, @core.LineageGraph) -> GraphDiff
+
+pub fn compare_steps(@core.Step, @core.Step) -> StepDiff?
+
+// Errors
+
+// Types and methods
+pub(all) struct DatasetDiff {
+  dataset_id : String
+  added_fields : Array[String]
+  deleted_fields : Array[String]
+  modified_fields : Array[FieldDiff]
+  metadata_changed : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) struct FieldDiff {
+  field_name : String
+  old_type : String
+  new_type : String
+  old_description : String
+  new_description : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct GraphDiff {
+  added_datasets : Array[String]
+  deleted_datasets : Array[String]
+  modified_datasets : Array[DatasetDiff]
+  added_steps : Array[String]
+  deleted_steps : Array[String]
+  modified_steps : Array[StepDiff]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct StepDiff {
+  step_id : String
+  inputs_changed : Bool
+  outputs_changed : Bool
+  query_changed : Bool
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

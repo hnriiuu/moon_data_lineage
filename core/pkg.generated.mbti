@@ -1,0 +1,104 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "hnriiuu/moon_data_lineage/core"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn build_catalog(LineageGraph) -> DataCatalog
+
+pub fn trace_pii_propagation(LineageGraph, DataCatalog) -> Array[String]
+
+// Errors
+
+// Types and methods
+pub(all) struct CatalogEntry {
+  dataset_id : String
+  field_name : String
+  data_type : String
+  description : String
+  tags : Array[String]
+  is_pii : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) struct DataCatalog {
+  entries : Map[String, CatalogEntry]
+  pii_columns : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn DataCatalog::new() -> Self
+
+pub(all) struct Dataset {
+  id : String
+  name : String
+  schema : Array[Field]
+  mut description : String
+  mut dataset_type : String
+  location : String
+  version : String
+} derive(Eq, @debug.Debug)
+pub fn Dataset::new(String, String, Array[Field], description? : String, dataset_type? : String, location? : String, version? : String) -> Self
+
+pub(all) struct Field {
+  name : String
+  data_type : String
+  description : String
+  tags : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn Field::new(String, String, description? : String, tags? : Array[String]) -> Self
+
+pub(all) struct FieldDependency {
+  target_field : String
+  source_fields : Array[String]
+  expression : String
+} derive(Eq, @debug.Debug)
+pub fn FieldDependency::new(String, Array[String], String) -> Self
+
+pub(all) struct LineageGraph {
+  datasets : Map[String, Dataset]
+  steps : Map[String, Step]
+  dataset_dependencies : Map[String, Array[String]]
+  field_dependencies : Map[String, Array[FieldDependency]]
+} derive(Eq, @debug.Debug)
+pub fn LineageGraph::add_dataset(Self, Dataset) -> Unit
+pub fn LineageGraph::add_dataset_dependency(Self, String, String) -> Unit
+pub fn LineageGraph::add_field_dependency(Self, String, FieldDependency) -> Unit
+pub fn LineageGraph::add_step(Self, Step) -> Unit
+pub fn LineageGraph::find_dataset_cycle(Self) -> Array[String]?
+pub fn LineageGraph::new() -> Self
+pub fn LineageGraph::validate(Self) -> Array[String]
+
+pub(all) struct Registry {
+  graph : LineageGraph
+} derive(Eq, @debug.Debug)
+pub fn Registry::get_graph(Self) -> LineageGraph
+pub fn Registry::new() -> Self
+pub fn Registry::register_dataset(Self, String, String, Array[Field], description? : String, dataset_type? : String, location? : String, version? : String) -> Dataset
+pub fn Registry::register_field_dependency(Self, String, String, Array[String], String) -> Unit
+pub fn Registry::register_step(Self, String, String, StepType, String, description? : String, inputs? : Array[String], outputs? : Array[String]) -> Step
+pub fn Registry::validate(Self) -> Array[String]
+
+pub(all) struct Step {
+  id : String
+  name : String
+  step_type : StepType
+  query : String
+  description : String
+  inputs : Array[String]
+  outputs : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn Step::new(String, String, StepType, String, description? : String, inputs? : Array[String], outputs? : Array[String]) -> Self
+
+pub(all) enum StepType {
+  Projection
+  Join
+  Filter
+  Aggregate
+  Union
+  Custom(String)
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

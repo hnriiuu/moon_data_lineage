@@ -1,0 +1,60 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "hnriiuu/moon_data_lineage/analysis"
+
+import {
+  "hnriiuu/moon_data_lineage/core",
+  "hnriiuu/moon_data_lineage/sql",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn format_column_paths(Array[ColumnPath]) -> String
+
+pub fn generate_dataset_risk_report(@core.LineageGraph, String) -> RiskReport
+
+pub fn generate_field_risk_report(@core.LineageGraph, String, String) -> RiskReport
+
+pub fn lint_select(@sql.SqlSelect) -> Array[LintIssue]
+
+pub fn lint_stmt(@sql.SqlStmt) -> Array[LintIssue]
+
+pub fn trace_all_field_paths(@core.LineageGraph, String, String) -> Array[ColumnPath]
+
+pub fn trace_dataset_downstream(@core.LineageGraph, String) -> Array[String]
+
+pub fn trace_dataset_upstream(@core.LineageGraph, String) -> Array[String]
+
+pub fn trace_field_downstream(@core.LineageGraph, String, String) -> Array[String]
+
+pub fn trace_field_upstream(@core.LineageGraph, String, String) -> Array[String]
+
+// Errors
+
+// Types and methods
+pub(all) struct ColumnPath {
+  path : Array[String]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct LintIssue {
+  rule_id : String
+  severity : String
+  message : String
+} derive(Eq, @debug.Debug)
+pub impl Show for LintIssue
+
+pub(all) struct RiskItem {
+  target_id : String
+  risk_level : String
+  path : Array[String]
+  reason : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct RiskReport {
+  source : String
+  items : Array[RiskItem]
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+
