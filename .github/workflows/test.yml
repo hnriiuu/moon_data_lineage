@@ -1,0 +1,43 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MoonBit
+        uses: chawyehsu/setup-moonup@v1
+
+      - name: Verify toolchain
+        run: moon version
+
+      - name: Format check
+        run: moon fmt --check
+
+      - name: Interface check
+        run: moon info
+
+      - name: Type check
+        run: moon check --deny-warn
+
+      - name: Run tests
+        run: moon test --deny-warn
