@@ -1,0 +1,9 @@
+import {
+  "hnriiuu/moon_data_lineage/core",
+  "hnriiuu/moon_data_lineage/analysis",
+  "hnriiuu/moon_data_lineage/diff",
+  "hnriiuu/moon_data_lineage/export",
+  "hnriiuu/moon_data_lineage/sql",
+}
+
+pkgtype(kind: "executable")
