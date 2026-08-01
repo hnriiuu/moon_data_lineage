@@ -43,4 +43,9 @@ test "exporters verification" {
   let md = export_markdown_summary(graph)
   assert_eq(md.contains("# Data Lineage"), true)
   assert_eq(md.contains("| Field Name |"), true)
+
+  // HTML
+  let html = export_html_dashboard(graph)
+  assert_eq(html.contains("<!DOCTYPE html>"), true)
+  assert_eq(html.contains("MoonBit Lineage"), true)
 }
